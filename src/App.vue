@@ -12,8 +12,10 @@
 </template>
 
 <script>
+import { ref } from "@vue/composition-api";
 import ProductForm from "./components/ProductForm";
 import Products from "./components/Products";
+import { useToggle } from "./cmp-functions/toggle";
 
 export default {
   name: "app",
@@ -21,28 +23,38 @@ export default {
     ProductForm,
     Products
   },
-  data() {
-    return {
-      products: [],
-      showUserInfo: false
-    };
-  },
-  methods: {
-    createProduct(title, price) {
+  setup() {
+    const products = ref([]);
+    // let showUserInfo = reactive({ show: false });
+    const createProduct = (title, price) => {
       const newProduct = {
         id: Math.random(),
         title: title,
         price: price
       };
 
-      this.products.push(newProduct);
-    },
-    deleteProduct(productId) {
-      this.products = this.products.filter(p => p.id !== productId);
-    },
-    toggleUserInfo() {
-      this.showUserInfo = !this.showUserInfo;
-    }
+      products.value.push(newProduct);
+    };
+
+    const deleteProduct = productId => {
+      products.value = products.value.filter(p => p.id !== productId);
+    };
+
+    // const showUserInfo = ref(false);
+
+    // const toggleUserInfo = () => {
+    //   showUserInfo.value = !showUserInfo.value;
+    // };
+
+    const { show: showUserInfo, toggle: toggleUserInfo } = useToggle();
+
+    return {
+      products,
+      showUserInfo,
+      createProduct,
+      deleteProduct,
+      toggleUserInfo
+    };
   }
 };
 </script>
