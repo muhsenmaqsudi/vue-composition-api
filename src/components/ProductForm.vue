@@ -2,7 +2,12 @@
   <form id="product-form" @submit.prevent="saveProduct">
     <div class="form-group">
       <label for="title">Title</label>
-      <input class="form-control" type="text" id="title" v-model="titleInput" />
+      <input
+        class="form-control"
+        type="text"
+        id="title"
+        v-model="inputState.title"
+      />
     </div>
     <div class="form-group">
       <label for="price">Price</label>
@@ -12,7 +17,7 @@
         min="0"
         step="0.01"
         id="price"
-        v-model="priceInput"
+        v-model="inputState.price"
       />
     </div>
     <button type="submit" :disabled="!isValid">Save</button>
@@ -20,6 +25,13 @@
 </template>
 
 <script>
+import {
+  ref,
+  reactive,
+  watch,
+  computed,
+  onMounted
+} from "@vue/composition-api";
 export default {
   props: {
     createProduct: {
@@ -27,44 +39,53 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      titleInput: "",
-      priceInput: "",
-      submitted: false
-    };
-  },
-  computed: {
-    price() {
-      return parseFloat(this.priceInput);
-    },
-    isValid() {
+  setup(props) {
+    onMounted(() => {
+      console.log("hiii");
+    });
+
+    const inputState = reactive({
+      title: "",
+      price: ""
+    });
+    const submitted = ref(false);
+
+    // eslint-disable-next-line no-unused-vars
+    const priceAsNumber = computed(() => {
+      return parseFloat(inputState.price);
+    });
+
+    const isValid = computed(() => {
       let isValid = true;
 
-      if (this.titleInput.trim().length === 0) {
+      if (inputState.title.trim().length === 0) {
         isValid = false;
       }
 
-      if (isNaN(this.price) || this.price <= 0) {
+      if (isNaN(priceAsNumber.value) || priceAsNumber.value <= 0) {
         isValid = false;
       }
       return isValid;
-    }
-  },
-  watch: {
-    submitted() {
-      if (this.submitted) {
-        this.titleInput = "";
-        this.priceInput = "";
-        this.submitted = false;
+    });
+
+    watch(() => {
+      if (submitted.value) {
+        inputState.title = "";
+        inputState.price = "";
+        submitted.value = false;
       }
-    }
-  },
-  methods: {
-    saveProduct() {
-      this.createProduct(this.titleInput, this.price);
-      this.submitted = true;
-    }
+    });
+
+    const saveProduct = () => {
+      props.createProduct(inputState.title, priceAsNumber.value);
+      submitted.value = true;
+    };
+
+    return {
+      inputState,
+      saveProduct,
+      isValid
+    };
   }
 };
 </script>
