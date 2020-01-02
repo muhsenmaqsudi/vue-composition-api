@@ -2,7 +2,7 @@
   <div id="app">
     <div id="user-info">
       <button @click="toggleUserInfo">
-        {{ showUserInfo ? "Hide" : "Show" }} Use Details
+        {{ showUserInfo ? "Hide" : "Show" }} User Details
       </button>
       <p v-if="showUserInfo">You're logged in!</p>
     </div>
